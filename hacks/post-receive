@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Script is called with: (from_commit to_commit branch_name)
+read FROM TO BRANCH
+
+locals_dir=${HOME}/locals
+GIT_WORK_TREE=$locals_dir git checkout -f $BRANCH
+
+cd $locals_dir/
+
+basic_build()
+{
+    if [ -f ./Dockerfile ]; then
+        docker build --rm -t dolly_image:${BRANCH} .
+        docker run -d dolly_image:${BRANCH}
+    else
+        echo "No Dockerfile or dolly file found....exiting"
+        exit 0
+    fi
+}
+
+if [ -x ./dolly ]; then
+    ./dolly ${FROM} ${TO} ${BRANCH}
+else
+    basic_build
+fi
